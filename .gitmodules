@@ -1,0 +1,7 @@
+[submodule "frankenlibc"]
+	path = frankenlibc
+	url = https://github.com/retrage/frankenlibc.git
+	branch = solo5
+[submodule "rumprun-packages"]
+	path = rumprun-packages
+	url = https://github.com/ukontainer/rumprun-packages.git

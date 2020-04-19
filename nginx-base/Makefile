@@ -15,18 +15,32 @@
 # NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
 # CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-all:
-	@echo "To build a base image, run 'make'"
-	@echo "in the package directory."
-	@echo
-	@echo "To build all packages, run 'make world'."
+export TOP=$(abspath ..)
+all: build_docker
 
-world:
-	$(MAKE) -C hello-base
-	$(MAKE) -C nginx-base
-	$(MAKE) -C python3-base
+RUMPPKGS=$(TOP)/rumprun-packages
+RUMPRUN=$(TOP)/frankenlibc
+include ../Makefile.inc
 
-distclean:
-	$(MAKE) -C hello-base distclean
-	$(MAKE) -C nginx-base distclean
-	$(MAKE) -C python3-base distclean
+FILES= \
+	   Dockerfile \
+	   Makefile \
+
+.PHONY: rumprun-packages-nginx
+rumprun-packages-nginx: rumprun FORCE
+	echo RUMPRUN_TOOLCHAIN_TUPLE=x86_64-rumprun-linux > $(RUMPPKGS)/config.mk
+	export PATH=$(RUMPRUN)/rump/bin:$(PATH) && \
+	$(MAKE) -C $(RUMPPKGS)/nginx
+	cp -rpf $(RUMPPKGS)/nginx/images/data data
+	cp -pf $(RUMPPKGS)/nginx/build/objs/nginx nginx.nabla
+
+rumprun-packages-nginx-clean:
+	$(MAKE) -C $(RUMPPKGS)/nginx clean
+
+build_docker: submodule_warning $(FILES) rumprun-packages-nginx
+	docker build -f Dockerfile -t retrage/lkl-nabla-nginx-base .
+
+clean:
+	rm -rf data nginx.nabla
+
+distclean: clean rumprun-packages-nginx-clean rumprun-clean

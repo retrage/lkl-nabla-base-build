@@ -1,3 +1,5 @@
 hello-base/hello.nabla
+nginx-base/nginx.nabla
+nginx-base/data
 python3-base/python3.nabla
 python3-base/python3.5

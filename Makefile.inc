@@ -51,6 +51,6 @@ rumprun_stamp: submodule_warning
 rumprun-clean:
 	rm -rf $(TOP)/frankenlibc/rumpobj
 	$(MAKE) clean -C $(TOP)/frankenlibc/musl
-	rm rumprun_stamp
+	rm -f rumprun_stamp
 
 .PHONY: FORCE

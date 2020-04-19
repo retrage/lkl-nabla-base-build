@@ -3,3 +3,5 @@ nginx-base/nginx.nabla
 nginx-base/data
 python3-base/python3.nabla
 python3-base/python3.5
+redis-base/redis.nabla
+redis-base/data

@@ -15,20 +15,32 @@
 # NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
 # CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-all:
-	@echo "To build a base image, run 'make'"
-	@echo "in the package directory."
-	@echo
-	@echo "To build all packages, run 'make world'."
+export TOP=$(abspath ..)
+all: build_docker
 
-world:
-	$(MAKE) -C hello-base
-	$(MAKE) -C nginx-base
-	$(MAKE) -C python3-base
-	$(MAKE) -C redis-base
+RUMPPKGS=$(TOP)/rumprun-packages
+RUMPRUN=$(TOP)/frankenlibc
+include ../Makefile.inc
 
-distclean:
-	$(MAKE) -C hello-base distclean
-	$(MAKE) -C nginx-base distclean
-	$(MAKE) -C python3-base distclean
-	$(MAKE) -C redis-base distclean
+FILES= \
+	   Dockerfile \
+	   Makefile \
+
+.PHONY: rumprun-packages-redis
+rumprun-packages-redis: rumprun FORCE
+	echo RUMPRUN_TOOLCHAIN_TUPLE=x86_64-rumprun-linux > $(RUMPPKGS)/config.mk
+	export PATH=$(RUMPRUN)/rump/bin:$(PATH) && \
+	$(MAKE) -C $(RUMPPKGS)/redis cache
+	cp -rpf $(RUMPPKGS)/redis/images/data data
+	cp -pf $(RUMPPKGS)/redis/bin/redis-server redis.nabla
+
+rumprun-packages-redis-clean:
+	$(MAKE) -C $(RUMPPKGS)/redis clean
+
+build_docker: submodule_warning $(FILES) rumprun-packages-redis
+	docker build -f Dockerfile -t retrage/lkl-nabla-redis-base .
+
+clean:
+	rm -rf data redis.nabla
+
+distclean: clean rumprun-packages-redis-clean rumprun-clean

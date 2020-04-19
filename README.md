@@ -1,6 +1,11 @@
 # lkl-nabla-base-build
 
 This repository provides building of LKL Nabla base Docker images.
+Below base images available.
+
+* hello-base
+* nginx-base
+* python3-base
 
 ## Building the Bases
 
@@ -35,4 +40,5 @@ $ make -C hello-base
 The following pre-built docker images are available on Docker Hub.
 
 * [retrage/lkl-nabla-hello-base](https://hub.docker.com/repository/docker/retrage/lkl-nabla-hello-base)
+* [retrage/lkl-nabla-nginx-base](https://hub.docker.com/repository/docker/retrage/lkl-nabla-nginx-base)
 * [retrage/lkl-nabla-python3-base](https://hub.docker.com/repository/docker/retrage/lkl-nabla-python3-base)

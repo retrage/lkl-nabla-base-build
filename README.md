@@ -5,6 +5,7 @@ Below base images available.
 
 * hello-base
 * nginx-base
+* node-base
 * python3-base
 * redis-base
 

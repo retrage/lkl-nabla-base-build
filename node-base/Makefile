@@ -15,22 +15,31 @@
 # NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
 # CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-all:
-	@echo "To build a base image, run 'make'"
-	@echo "in the package directory."
-	@echo
-	@echo "To build all packages, run 'make world'."
+export TOP=$(abspath ..)
+all: build_docker
 
-world:
-	$(MAKE) -C hello-base
-	$(MAKE) -C nginx-base
-	$(MAKE) -C node-base
-	$(MAKE) -C python3-base
-	$(MAKE) -C redis-base
+RUMPPKGS=$(TOP)/rumprun-packages
+RUMPRUN=$(TOP)/frankenlibc
+include ../Makefile.inc
 
-distclean:
-	$(MAKE) -C hello-base distclean
-	$(MAKE) -C nginx-base distclean
-	$(MAKE) -C node-base distclean
-	$(MAKE) -C python3-base distclean
-	$(MAKE) -C redis-base distclean
+FILES= \
+	   Dockerfile \
+	   Makefile \
+
+.PHONY: rumprun-packages-nodejs
+rumprun-packages-nodejs: rumprun FORCE
+	echo RUMPRUN_TOOLCHAIN_TUPLE=x86_64-rumprun-linux > $(RUMPPKGS)/config.mk
+	export PATH=$(RUMPRUN)/rump/bin:$(PATH) && \
+	$(MAKE) -C $(RUMPPKGS)/nodejs
+	cp -pf $(RUMPPKGS)/nodejs/bin/node node.nabla
+
+rumprun-packages-nodejs-clean:
+	$(MAKE) -C $(RUMPPKGS)/nodejs clean
+
+build_docker: submodule_warning $(FILES) rumprun-packages-nodejs
+	docker build -f Dockerfile -t retrage/lkl-nabla-node-base .
+
+clean:
+	rm -rf node.nabla
+
+distclean: clean rumprun-packages-nodejs-clean rumprun-clean
